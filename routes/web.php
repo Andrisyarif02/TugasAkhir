@@ -22,7 +22,6 @@ Auth::routes();
 Route::group(['middleware' => ['auth']], function () {  
     Route::get('/home', 'HomeController@index')->name('home');
     Route::resource('/products','ProductController');
-    //sorry kalau ada typo penggunaan bahasa inggris krn saya orang indonesia yang mencoba belajar b.inggris
     Route::get('/transcation', 'TransactionController@index');
     Route::post('/transcation/addproduct/{id}', 'TransactionController@addProductCart');
     Route::post('/transcation/removeproduct/{id}', 'TransactionController@removeProductCart');

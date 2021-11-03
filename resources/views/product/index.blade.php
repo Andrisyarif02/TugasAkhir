@@ -1,5 +1,4 @@
 @extends('layouts.app')
-<!-- © 2020 Copyright: Tahu Coding -->
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
@@ -23,7 +22,7 @@
                     @endif
                     <div class="row">
                         @foreach ($products as $product)
-                        <div class="col-sm-3">
+                        <div class="col-sm-2,5">
                             <div class="card mb-3">
                                 <div class="view overlay">
                                     <img class="card-img-top gambar" src="{{ $product->image }}" alt="Card image cap">
@@ -34,7 +33,8 @@
                                 <div class="card-body">
                                     <h5 class="card-title text-center font-weight-bold"
                                         style="text-transform: capitalize;">
-                                        {{ Str::words($product->name,6) }}</h5>
+                                        {{ Str::words($product->name,6) }}</h5> 
+                                        <p class="card-text text-center"> Quantity : {{$product->qty}}</p>
                                     <p class="card-text text-center">Rp. {{ number_format($product->price,2,',','.') }}
                                     </p>
                                     <a href="{{ route('products.edit', $product->id) }}"
@@ -69,4 +69,3 @@
 
     </style>
     @endpush
-<!-- © 2020 Copyright: Tahu Coding -->

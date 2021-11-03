@@ -1,5 +1,4 @@
 @extends('layouts.app')
-<!-- © 2020 Copyright: Tahu Coding -->
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
@@ -42,7 +41,7 @@
                                     @include('layouts.error', ['name' => 'price'])
                                 </div>
                                 <div class="form-group">
-                                    <label>Gambar Hero</label>
+                                    <label>Image</label>
                                     <div>
                                         <div class="custom-file">
                                             <br>
@@ -120,5 +119,4 @@
     </div>
 </div>
 @endsection
-<!-- © 2020 Copyright: Tahu Coding -->
 

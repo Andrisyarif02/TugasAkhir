@@ -1,5 +1,4 @@
 @extends('layouts.app')
-<!-- © 2020 Copyright: Tahu Coding -->
 @section('content')
 <div class="container-fluid">
     <div class="row justify-content-center">
@@ -15,21 +14,20 @@
                                 <select name="" id="" class="form-control from-control-sm" style="font-size: 12px">
                                     <option value="" holder>Filter Category</option>
                                     <option value="1">All Category...</option>
-                                    <!-- Kembangkan sendiri ya bagian ini kalau bisa pake select2 biar keren -->
                                 </select>
                             </div>
                             <div class="col"><input type="text" name="search"
                                     class="form-control form-control-sm col-sm-12 float-right"
                                     placeholder="Search Product..." onblur="this.form.submit()"></div>
                             <div class="col-sm-3"><button type="submit"
-                                    class="btn btn-primary btn-sm float-right btn-block">Cari Product</button></div>
+                                    class="btn btn-danger btn-sm float-right btn-block">Cari Product</button></div>
                         </div>
                     </form>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         @foreach ($products as $product)
-                        <div style="width: 16.66%;border:1px solid rgb(243, 243, 243)" class="mb-4">
+                        <div style="width: 18%;border:1px solid rgb(243, 243, 243)" class="mb-4">
                             <div class="productCard">
                                 <div class="view overlay">
                                     <form action="{{url('/transcation/addproduct', $product->id)}}" method="POST">
@@ -37,21 +35,19 @@
                                         @if($product->qty == 0)
                                         <img class="card-img-top gambar" src="{{ $product->image }}"
                                             alt="Card image cap">
-                                        <button class="btn btn-primary btn-sm cart-btn disabled"><i
+                                        <button class="btn btn-danger btn-sm cart-btn disabled"><i
                                                 class="fas fa-cart-plus"></i></button>
                                         @else
                                         <img class="card-img-top gambar" src="{{ $product->image }}"
                                             alt="Card image cap" style="cursor: pointer"
                                             onclick="this.closest('form').submit();return false;">
-                                        <button type="submit" class="btn btn-primary btn-sm cart-btn"><i
+                                        <button type="submit" class="btn btn-danger btn-sm cart-btn"><i
                                                 class="fas fa-cart-plus"></i></button>
                                         @endif
                                     </form>
                                 </div>
                                 <div class="card-body">
-                                    <label class="card-text text-center font-weight-bold"
-                                        style="text-transform: capitalize;">
-                                        {{ Str::words($product->name,4) }} ({{$product->qty}}) </label>
+                                    <p class="card-text text-center font-weight-bold">{{ Str::words($product->name,4) }}</p>
                                     <p class="card-text text-center">Rp. {{ number_format($product->price,2,',','.') }}
                                     </p>
                                 </div>
@@ -69,13 +65,6 @@
                     <div class="row">
                         <div class="col-sm-4">
                             <h4 class="font-weight-bold">Cart</h4>
-                        </div>
-                        <div class="col-sm-8">
-                            <select name="" id="" class="form-control from-control-sm" style="font-size: 13px">
-                                <option value="1">Take Away Customer</option>
-                                <option value="" holder>Other Customer...</option>
-                                <!-- Kembangkan sendiri ya bagian ini -->
-                            </select>
                         </div>
                     </div>
                 </div>
@@ -126,7 +115,7 @@
                                     </td>
                                     <td class="text-right">Rp. {{ number_format($item['price'],2,',','.') }}</td>
                                 </tr>
-                                @empty
+                                @empty  
                                 <tr>
                                     <td colspan="4" class="text-center">Empty Cart</td>
                                 </tr>
@@ -140,7 +129,7 @@
                             <th width="40%" class="text-right">Rp.
                                 {{ number_format($data_total['sub_total'],2,',','.') }} </th>
                         </tr>
-                        <tr>
+                        {{-- <tr>
                             <th>
                                 <form action="{{ url('/transcation') }}" method="get">
                                     PPN 10%
@@ -150,7 +139,7 @@
                             </th>
                             <th class="text-right">Rp.
                                 {{ number_format($data_total['tax'],2,',','.') }}</th>
-                        </tr>
+                        </tr> --}}
                         <tr>
                             <th>Total</th>
                             <th class="text-right font-weight-bold">Rp.
@@ -169,11 +158,10 @@
                         <div class="col-sm-4">
                             <a class="btn btn-primary btn-lg btn-block"
                                 style="padding:1rem!important" href="{{url('/transcation/history')}}" target="_blank">History</a>
-                            <!-- Kembangkan sendiri ya bagian ini, logikanya kita simpan cartnya sementara dalam databse ntar kalau butuh keluarin lagi-->
                         </div>
                         <div class="col-sm-4">
                             <button class="btn btn-success btn-lg btn-block" style="padding:1rem!important"
-                                data-toggle="modal" data-target="#fullHeightModalRight">Pay</button>
+                                data-toggle="modal">Pay</button>
                         </div>
                     </div>
                 </div>
@@ -376,5 +364,4 @@
         }
 
     </style>
-    <!-- © 2020 Copyright: Tahu Coding -->
     @endpush
