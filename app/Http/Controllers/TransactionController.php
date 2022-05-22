@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use App\Product;
 use App\HistoryProduct;
@@ -16,16 +17,17 @@ use Haruncpi\LaravelIdGenerator\IdGenerator;
 
 class TransactionController extends Controller
 {
-    public function index(Request $request){    
-             
+    public function index(Request $request)
+    {
+
         //product
-        
-        $products = Product::when(request('search'), function($query){
-                        return $query->where('name','like','%'.request('search').'%');
-                    })
-                    ->orderBy('created_at','desc')
-                    ->paginate(12);
-    
+
+        $products = Product::when(request('search'), function ($query) {
+            return $query->where('name', 'like', '%' . request('search') . '%');
+        })
+            ->orderBy('created_at', 'desc')
+            ->paginate(12);
+
         // $products=Product::paginate(12);
         // if($request->cat){
         // $products = Product::where('description',$request->cat)
@@ -36,33 +38,32 @@ class TransactionController extends Controller
         //     ->orderBy('created_at','desc')
         //     ->paginate(12);
         // }
-       
+
         $categories = \App\Category::all();
-        
+
         //cart item
-        if(request()->tax){
+        if (request()->tax) {
             $tax = "+10%";
-        }else{
+        } else {
             $tax = "0%";
         }
 
         $condition = new \Darryldecode\Cart\CartCondition(array(
-                'name' => 'pajak',
-                'type' => 'tax', //tipenya apa
-                'target' => 'total', //target kondisi ini apply ke mana (total, subtotal)
-                'value' => $tax, //contoh -12% or -10 or +10 etc
-                'order' => 1
-            ));                
-            
-        \Cart::session(Auth()->id())->condition($condition);          
+            'name' => 'pajak',
+            'type' => 'tax', //tipenya apa
+            'target' => 'total', //target kondisi ini apply ke mana (total, subtotal)
+            'value' => $tax, //contoh -12% or -10 or +10 etc
+            'order' => 1
+        ));
+
+        \Cart::session(Auth()->id())->condition($condition);
 
         $items = \Cart::session(Auth()->id())->getContent();
-        
-        if(\Cart::isEmpty()){
-            $cart_data = [];            
-        }
-        else{
-            foreach($items as $row) {
+
+        if (\Cart::isEmpty()) {
+            $cart_data = [];
+        } else {
+            foreach ($items as $row) {
                 $cart[] = [
                     'rowId' => $row->id,
                     'name' => $row->name,
@@ -70,19 +71,18 @@ class TransactionController extends Controller
                     'pricesingle' => $row->price,
                     'price' => $row->getPriceSum(),
                     'created_at' => $row->attributes['created_at'],
-                ];           
+                ];
             }
-            
-            $cart_data = collect($cart)->sortBy('created_at');
 
+            $cart_data = collect($cart)->sortBy('created_at');
         }
-        
+
         //total
         $sub_total = \Cart::session(Auth()->id())->getSubTotal();
         $total = \Cart::session(Auth()->id())->getTotal();
 
         $new_condition = \Cart::session(Auth()->id())->getCondition('pajak');
-        $pajak = $new_condition->getCalculatedValue($sub_total); 
+        $pajak = $new_condition->getCalculatedValue($sub_total);
 
         $data_total = [
             'sub_total' => $sub_total,
@@ -90,175 +90,198 @@ class TransactionController extends Controller
             'tax' => $pajak
         ];
 
-       
-        return view('pos.index', compact('products','cart_data','data_total', 'categories'));
+
+        return view('pos.index', compact('products', 'cart_data', 'data_total', 'categories'));
     }
 
-    public function filter($id){
-        if($id == 0){
-            
+    public function filter($id)
+    {
+        if ($id == 0) {
         }
     }
 
-    public function addProductCart($id){
-        $product = Product::find($id);      
-                
-        $cart = \Cart::session(Auth()->id())->getContent();        
-        $cek_itemId = $cart->whereIn('id', $id);  
-      
-        if($cek_itemId->isNotEmpty()){
-            if($product->qty == $cek_itemId[$id]->quantity){
-                return redirect()->back()->with('error','jumlah item kurang');
-            }else{
+    public function addProductCart($id)
+    {
+        $product = Product::find($id);
+
+        $cart = \Cart::session(Auth()->id())->getContent();
+        $cek_itemId = $cart->whereIn('id', $id);
+
+        if ($cek_itemId->isNotEmpty()) {
+            if ($product->qty == $cek_itemId[$id]->quantity) {
+                return redirect()->back()->with('error', 'jumlah item kurang');
+            } else {
                 \Cart::session(Auth()->id())->update($id, array(
                     'quantity' => 1
                 ));
-            }            
-        }else{
-             \Cart::session(Auth()->id())->add(array(
-            'id' => $id,
-            'name' => $product->name,
-            'price' => $product->price,
-            'quantity' => 1, 
-            'attributes' => array(
-                'created_at' => date('Y-m-d H:i:s')
-            )          
-        ));
-        
-        }       
+            }
+        } else {
+            \Cart::session(Auth()->id())->add(array(
+                'id' => $id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'quantity' => 1,
+                'attributes' => array(
+                    'created_at' => date('Y-m-d H:i:s')
+                )
+            ));
+        }
 
         return redirect()->back();
     }
 
-    public function removeProductCart($id){
-        \Cart::session(Auth()->id())->remove($id);     
-                         
+    public function removeProductCart($id)
+    {
+        \Cart::session(Auth()->id())->remove($id);
+
         return redirect()->back();
     }
 
-    public function bayar(){
+    public function bayar()
+    {
 
         $cart_total = \Cart::session(Auth()->id())->getTotal();
         $bayar = request()->bayar;
         $kembalian = (int)$bayar - (int)$cart_total;
-               
-        if($kembalian >= 0){  
+
+        if ($kembalian >= 0) {
             DB::beginTransaction();
 
-            try{
+            try {
 
-            $all_cart = \Cart::session(Auth()->id())->getContent();
-           
+                $all_cart = \Cart::session(Auth()->id())->getContent();
 
-            $filterCart = $all_cart->map(function($item){
-                return [
-                    'id' => $item->id,
-                    'quantity' => $item->quantity
-                ];
-            });
 
-            foreach($filterCart as $cart){
-                $product = Product::find($cart['id']);
-                
-                if($product->qty == 0){
-                    return redirect()->back()->with('errorTransaksi','jumlah pembayaran tidak valid');  
+                $filterCart = $all_cart->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'quantity' => $item->quantity
+                    ];
+                });
+
+                foreach ($filterCart as $cart) {
+                    $product = Product::find($cart['id']);
+
+                    if ($product->qty == 0) {
+                        return redirect()->back()->with('errorTransaksi', 'jumlah pembayaran tidak valid');
+                    }
+
+                    HistoryProduct::create([
+                        'product_id' => $cart['id'],
+                        'user_id' => Auth::id(),
+                        'qty' => $product->qty,
+                        'qtyChange' => -$cart['quantity'],
+                        'tipe' => 'decrease from transaction'
+                    ]);
+
+                    $product->decrement('qty', $cart['quantity']);
                 }
 
-                HistoryProduct::create([
-                    'product_id' => $cart['id'],
-                    'user_id' => Auth::id(),
-                    'qty' => $product->qty,
-                    'qtyChange' => -$cart['quantity'],
-                    'tipe' => 'decrease from transaction'
-                ]);
-                
-                $product->decrement('qty',$cart['quantity']);
-            }
-            
-            $id = IdGenerator::generate(['table' => 'transcations', 'length' => 10, 'prefix' =>'INV-', 'field' => 'invoices_number']);
+                $id = IdGenerator::generate(['table' => 'transcations', 'length' => 10, 'prefix' => 'INV-', 'field' => 'invoices_number']);
 
-            Transcation::create([
-                'invoices_number' => $id,
-                'user_id' => Auth::id(),
-                'pay' => request()->bayar,
-                'total' => $cart_total
-            ]);
-
-            foreach($filterCart as $cart){    
-
-                ProductTranscation::create([
-                    'product_id' => $cart['id'],
+                Transcation::create([
                     'invoices_number' => $id,
-                    'qty' => $cart['quantity'],
-                ]);                
+                    'user_id' => Auth::id(),
+                    'pay' => request()->bayar,
+                    'total' => $cart_total
+                ]);
+
+                foreach ($filterCart as $cart) {
+
+                    ProductTranscation::create([
+                        'product_id' => $cart['id'],
+                        'invoices_number' => $id,
+                        'qty' => $cart['quantity'],
+                    ]);
+                }
+
+                \Cart::session(Auth()->id())->clear();
+
+                DB::commit();
+                return redirect()->back()->with('success', 'Transaksi Berhasil dilakukan, Klik History untuk print');
+            } catch (\Exeception $e) {
+                DB::rollback();
+                return redirect()->back()->with('errorTransaksi', 'jumlah pembayaran tidak valid');
             }
-
-            \Cart::session(Auth()->id())->clear();
-
-            DB::commit();        
-            return redirect()->back()->with('success','Transaksi Berhasil dilakukan, Klik History untuk print');        
-            }catch(\Exeception $e){
-            DB::rollback();
-                return redirect()->back()->with('errorTransaksi','jumlah pembayaran tidak valid');        
-            }        
         }
-        return redirect()->back()->with('errorTransaksi','jumlah pembayaran tidak valid');        
-
+        return redirect()->back()->with('errorTransaksi', 'jumlah pembayaran tidak valid');
     }
 
-    public function clear(){
+    public function clear()
+    {
         \Cart::session(Auth()->id())->clear();
         return redirect()->back();
     }
 
-    public function decreasecart($id){
-        $product = Product::find($id);      
-                
-        $cart = \Cart::session(Auth()->id())->getContent();        
-        $cek_itemId = $cart->whereIn('id', $id); 
+    public function decreasecart($id)
+    {
+        $product = Product::find($id);
 
-        if($cek_itemId[$id]->quantity == 1){
-            \Cart::session(Auth()->id())->remove($id);  
-        }else{
+        $cart = \Cart::session(Auth()->id())->getContent();
+        $cek_itemId = $cart->whereIn('id', $id);
+
+        if ($cek_itemId[$id]->quantity == 1) {
+            \Cart::session(Auth()->id())->remove($id);
+        } else {
             \Cart::session(Auth()->id())->update($id, array(
-            'quantity' => array(
-                'relative' => true,
-                'value' => -1
-            )));            
+                'quantity' => array(
+                    'relative' => true,
+                    'value' => -1
+                )
+            ));
         }
         return redirect()->back();
-
     }
 
 
-    public function increasecart($id){
-        $product = Product::find($id);     
-        
-        $cart = \Cart::session(Auth()->id())->getContent();        
-        $cek_itemId = $cart->whereIn('id', $id); 
+    public function increasecart($id)
+    {
+        $product = Product::find($id);
 
-        if($product->qty == $cek_itemId[$id]->quantity){
-            return redirect()->back()->with('error','jumlah item kurang');
-        }else{
+        $cart = \Cart::session(Auth()->id())->getContent();
+        $cek_itemId = $cart->whereIn('id', $id);
+
+        if ($product->qty == $cek_itemId[$id]->quantity) {
+            return redirect()->back()->with('error', 'jumlah item kurang');
+        } else {
             \Cart::session(Auth()->id())->update($id, array(
-            'quantity' => array(
-                'relative' => true,
-                'value' => 1
-            )));
+                'quantity' => array(
+                    'relative' => true,
+                    'value' => 1
+                )
+            ));
 
             return redirect()->back();
-        }        
+        }
     }
 
-    public function history(){
-        $history = Transcation::orderBy('created_at','desc')->paginate(10);
-        return view('pos.history',compact('history'));
+    public function history()
+    {
+        $history = Transcation::orderBy('created_at', 'desc')->paginate(10);
+        return view('pos.history', compact('history'));
     }
 
-    public function laporan($id){
+    public function laporan($id)
+    {
         $transaksi = Transcation::with('productTranscation')->find($id);
-        return view('laporan.transaksi',compact('transaksi'));
+        return view('laporan.transaksi', compact('transaksi'));
     }
 
-    
+    public function ubahStatus(Request $request)
+    {
+        // $request = json_decode($request);
+        $data = Transcation::where('id', $request->input('id'))->firstOrFail();
+        $data->status = $request->input('tipe');
+        $data->save();
+        return response()->json(['message' => 'Sukses']);
+    }
+
+    public function konfirmasi(Request $request)
+    {
+        $data = Transcation::where('id', $request->input('id'))->firstOrFail();
+        $data->konfirmasi = 1;
+        $data->save();
+
+        return response()->json(['message' => 'Sukses!']);
+    }
 }

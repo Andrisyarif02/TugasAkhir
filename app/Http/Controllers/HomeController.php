@@ -29,5 +29,4 @@ class HomeController extends Controller
         // session()->put('roles', $roles);
         return view('home');
     }
-
 }

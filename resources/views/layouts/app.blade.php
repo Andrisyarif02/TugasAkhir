@@ -23,6 +23,7 @@
 
 
     @stack('style')
+    @stack('meta')
 </head>
 
 <body>
@@ -54,7 +55,6 @@
                         <a class="nav-link font-weight-bolder" href="{{url('/user')}}">User</a>
                         @endcan
                     </li>
-                    
                 </ul>
                 <button class="navbar-toggler" type="button" data-toggle="collapse"
                     data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
@@ -80,7 +80,7 @@
                         </li>
                         @endif
                         @else
-                        
+
                         <li class="dropdown dropdown-notification">
                             <a href="" class="dropdown-link new-indicator" data-toggle="dropdown" >
                                 <i class="fa fa-bell cursor-pointer"></i>
@@ -97,7 +97,7 @@
                                     </div><!-- media-body -->
                                   </div><!-- media -->
                                 </a>
-                                
+
                                 <div class="dropdown-footer"><a href="">View all Notifications</a></div>
                               </div><!-- dropdown-menu -->
                         </li>
@@ -130,10 +130,10 @@
             @yield('content')
         </main>
 
-        
+
     </div>
 
-    
+
 </body>
 <!-- JQuery -->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
