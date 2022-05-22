@@ -1,0 +1,10 @@
+admin: 
+- CRUD user 
+- nambahin store keterangan toko pada table user 
+- set status pesanan pada halaman laporan untuk ditampilkan di history (Done)
+- filter user dan tanggal transaksi pada halaman history
+
+Karyawan
+- modals payment ditambahi inputan data customer untuk digunakan pada saat pengiriman gateway message 
+- menambahkan pop up konfirmasi pessanan pada halaman hisotry untuk mengirimkan gateway + confirm pesanan telah diterima
+- filter tanggal transaksi

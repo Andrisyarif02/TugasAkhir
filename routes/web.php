@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,28 +20,30 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::group(['middleware' => ['auth']], function () {  
+Route::group(['middleware' => ['auth']], function () {
     Route::get('/home', 'HomeController@index')->name('home');
-    Route::resource('/products','ProductController');
+    Route::resource('/products', 'ProductController');
     Route::get('/transcation', 'TransactionController@index');
     Route::post('/transcation/addproduct/{id}', 'TransactionController@addProductCart');
     Route::post('/transcation/removeproduct/{id}', 'TransactionController@removeProductCart');
     Route::post('/transcation/clear', 'TransactionController@clear');
     Route::post('/transcation/increasecart/{id}', 'TransactionController@increasecart');
     Route::post('/transcation/decreasecart/{id}', 'TransactionController@decreasecart');
-    Route::post('/transcation/bayar','TransactionController@bayar');
-    Route::get('/transcation/history','TransactionController@history');
-    Route::get('/transcation/laporan/{id}','TransactionController@laporan');
+    Route::post('/transcation/bayar', 'TransactionController@bayar');
+    Route::get('/transcation/history', 'TransactionController@history');
+    Route::get('/transcation/laporan/{id}', 'TransactionController@laporan');
+    Route::post('/transaction/ubah-status', 'TransactionController@ubahStatus');
+    Route::post('/transaction/konfirmasi', 'TransactionController@konfirmasi');
 
     Route::get('/categoris/{id}', 'TransactionController@filter');
 
     Route::get('/category', 'CategoriesController@index');
-    Route::get('/category/index','CategoriesController@index');
-    Route::get('/category/create','CategoriesController@create');
-    Route::post('/category/tambah','CategoriesController@tambah');
-    Route::get('/category/{id}/edit','CategoriesController@edit');
-    Route::post('/category/{id}/update','CategoriesController@update');
-    Route::get('/category/{id}/delete','CategoriesController@delete');
+    Route::get('/category/index', 'CategoriesController@index');
+    Route::get('/category/create', 'CategoriesController@create');
+    Route::post('/category/tambah', 'CategoriesController@tambah');
+    Route::get('/category/{id}/edit', 'CategoriesController@edit');
+    Route::post('/category/{id}/update', 'CategoriesController@update');
+    Route::get('/category/{id}/delete', 'CategoriesController@delete');
 
     Route::get('/user', 'UserController@index');
     Route::get('/user/index', 'UserController@index');
@@ -50,9 +53,5 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/user/{id}/edit', 'UserController@update');
     Route::get('/user/{id}/edit', 'UserController@delete');
 
-    Route::get('/coba','TransactionController@index');
+    Route::get('/coba', 'TransactionController@index');
 });
-
-
-
-
