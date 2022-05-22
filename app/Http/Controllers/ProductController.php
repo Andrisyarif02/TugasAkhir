@@ -1,19 +1,20 @@
 <?php
 
 namespace App\Http\Controllers;
-//© 2020 Copyright: Tahu Coding
 use File;
 use App\Product;
 use App\HistoryProduct;
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Gate;
+
 
 class ProductController extends Controller
 {
+
     public function index(){
        
         $products = Product::when(request('search'), function($query){
@@ -21,11 +22,13 @@ class ProductController extends Controller
                     })
                     ->orderBy('created_at','desc')
                     ->paginate(8);
+                    
         return view('product.index', compact('products'));
     }
 
     public function create(){
-        return view('product.create');
+        $data_category = \App\Category::all();
+        return view('product.create', ['data_category' => $data_category]);
     }
 
     public function store(Request $request){       
@@ -97,7 +100,7 @@ class ProductController extends Controller
                     'name' => 'required|min:2|max:200',
                     'price' => 'required',
                     'qty' => 'required',
-                    'image' => 'mimes:jpeg,jpg,png,gif|required|max:25000',
+                    'image' => 'mimes:jpeg,jpg,png,gif|required',
                     'description' => 'required', 
                 ]);
 
@@ -139,9 +142,10 @@ class ProductController extends Controller
 
     public function edit($id){
         
+        $data_category = \App\Category::all();
         $product = Product::find($id);
         $history = HistoryProduct::where('product_id',$id)->orderBy('created_at','desc')->get();
-        return view('product.edit',compact('product','history'));
+        return view('product.edit',compact('product','history'), ['data_category' => $data_category]);
     }
 
     public function destroy(Request $request,$id){
@@ -163,5 +167,4 @@ class ProductController extends Controller
         
     }
 
-    //© 2020 Copyright: Tahu Coding
 }

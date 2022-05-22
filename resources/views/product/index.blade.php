@@ -2,8 +2,8 @@
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-12">
-            <div class="card" style="min-height: 85vh">
+        <div class="col-md-11">
+            <div class="card" >
                 <div class="card-header bg-white">
                     <form action="{{ route('products.index') }}" method="get">
                         <div class="row">  
@@ -12,7 +12,7 @@
                                     class="form-control form-control-sm col-sm-10 float-right"
                                     placeholder="Search Product..." onblur="this.form.submit()"></div>
                             <div class="col-sm-2"><a href="{{ url('/products/create')}}"
-                                    class="btn btn-primary btn-sm float-right btn-block">Add Product</a></div>
+                                    class="btn btn-danger btn-sm float-right btn-block">Add Product</a></div>
                         </div>
                     </form>
                 </div>
@@ -20,9 +20,9 @@
                     @if(Session::has('success'))
                     @include('layouts.flash-success',[ 'message'=> Session('success') ])
                     @endif
-                    <div class="row">
+                    <div class="row" style="margin-left: 1px; margin-right: 1px">
                         @foreach ($products as $product)
-                        <div class="col-sm-2,5">
+                        <div class="col-sm-3">
                             <div class="card mb-3">
                                 <div class="view overlay">
                                     <img class="card-img-top gambar" src="{{ $product->image }}" alt="Card image cap">
@@ -31,14 +31,14 @@
                                     </a>
                                 </div>
                                 <div class="card-body">
-                                    <h5 class="card-title text-center font-weight-bold"
+                                    <h6 class="card-title text-center font-weight-bold"
                                         style="text-transform: capitalize;">
-                                        {{ Str::words($product->name,6) }}</h5> 
+                                        {{ Str::words($product->name,6) }}</h6> 
                                         <p class="card-text text-center"> Quantity : {{$product->qty}}</p>
                                     <p class="card-text text-center">Rp. {{ number_format($product->price,2,',','.') }}
                                     </p>
                                     <a href="{{ route('products.edit', $product->id) }}"
-                                        class="btn btn-primary btn-block btn-sm">Details</a>
+                                        class="btn btn-danger btn-block btn-sm">Details</a>
                                 </div>
                             </div>
                         </div>
@@ -54,7 +54,7 @@
     @push('style')
     <style>
         .gambar {
-            width: 100%;
+            width: 90%;
             height: 175px;
             padding: 0.9rem 0.9rem
         }

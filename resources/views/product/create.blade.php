@@ -41,6 +41,18 @@
                                     <div class="col-sm-12"><img id="output" src="" class="img-fluid"></div>
                                     @include('layouts.error', ['name' => 'image'])
                                 </div>
+                                <div class="form-group">
+                                    <label for="description">Categories</label>
+                                    <select name="description" class="custom-select my-1 mr-sm-2 bg-light" id="inlineFormCustomSelectPref" 
+                                    required>
+                                    <option value="">-- Pilih Kategori --</option>
+                                    @foreach($data_category as $category)
+                                    <option value="{{$category->nama}}">{{$category->nama}} ( {{$category->kode}} )
+                                    </option>
+                                    @endforeach
+                                </select>
+                                </div>
+                                
                             </div>
                             <div class="col">
                                 <div class="form-group">
@@ -50,12 +62,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        
+                        
+                        {{-- <div class="form-group">
                             <label for="description">Categories</label>
                             <textarea name="description" cols="30" rows="1"
                                 class="form-control">{{ old('description') }}</textarea>
-                                @include('layouts.error', ['name' => 'description'])
-                        </div>
+                                
+                        </div> --}}
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary btn-block">Submit Product</button>
                         </div>

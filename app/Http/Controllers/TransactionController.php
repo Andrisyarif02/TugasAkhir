@@ -1,34 +1,44 @@
 <?php
 
 namespace App\Http\Controllers;
-//© 2020 Copyright: Tahu Coding
 use Illuminate\Http\Request;
 use App\Product;
 use App\HistoryProduct;
 use App\ProductTranscation;
-//sorry kalau ada typo dalam penamaan dalam bahasa inggris 
 use App\Transcation;
 use Auth;
 use DB;
 
 use Darryldecode\Cart\CartCondition;
 
-//import dulu packagenya biar bs dipake
 use Haruncpi\LaravelIdGenerator\IdGenerator;
 
 
 class TransactionController extends Controller
 {
-    public function index(){    
+    public function index(Request $request){    
              
         //product
+        
         $products = Product::when(request('search'), function($query){
                         return $query->where('name','like','%'.request('search').'%');
                     })
                     ->orderBy('created_at','desc')
                     ->paginate(12);
-
-
+    
+        // $products=Product::paginate(12);
+        // if($request->cat){
+        // $products = Product::where('description',$request->cat)
+        // ->orderBy('created_at','desc')
+        // ->paginate(12);
+        // }elseif($request->search){
+        //     $products = Product::where('name','like','%'.$request->search.'%')
+        //     ->orderBy('created_at','desc')
+        //     ->paginate(12);
+        // }
+       
+        $categories = \App\Category::all();
+        
         //cart item
         if(request()->tax){
             $tax = "+10%";
@@ -80,14 +90,14 @@ class TransactionController extends Controller
             'tax' => $pajak
         ];
 
-        //kembangin biar no reload make ajax
-        //saran bagi yg mau kembangin bisa pake jquery atau .js native untuk manggil ajax jangan lupa product, cart item dan total dipisah
-        //btw saya lg mager bikin beginian.. jadi sayas serahkan sama kalian ya (yang penting konsep dan fungsi aplikasi dah kelar 100%)
+       
+        return view('pos.index', compact('products','cart_data','data_total', 'categories'));
+    }
 
-        //kembangin jadi SPA make react.js atau vue.js (tapi bagusnya backend sama frontend dipisah | backend cuma sebagai penyedia token sama restfull api aja)
-        //kalau make SPA kayaknya agak sulit deh krn ini package default nyimpan cartnya disession, tapi kalau gak salah didokumentasinya
-        //bilang kalau ini package bisa store datanya di database 
-        return view('pos.index', compact('products','cart_data','data_total'));
+    public function filter($id){
+        if($id == 0){
+            
+        }
     }
 
     public function addProductCart($id){
@@ -151,7 +161,7 @@ class TransactionController extends Controller
                 $product = Product::find($cart['id']);
                 
                 if($product->qty == 0){
-                    return redirect()->back()->with('errorTransaksi','jumlah pembayaran gak valid');  
+                    return redirect()->back()->with('errorTransaksi','jumlah pembayaran tidak valid');  
                 }
 
                 HistoryProduct::create([
@@ -186,13 +196,13 @@ class TransactionController extends Controller
             \Cart::session(Auth()->id())->clear();
 
             DB::commit();        
-            return redirect()->back()->with('success','Transaksi Berhasil dilakukan Tahu Coding | Klik History untuk print');        
+            return redirect()->back()->with('success','Transaksi Berhasil dilakukan, Klik History untuk print');        
             }catch(\Exeception $e){
             DB::rollback();
-                return redirect()->back()->with('errorTransaksi','jumlah pembayaran gak valid');        
+                return redirect()->back()->with('errorTransaksi','jumlah pembayaran tidak valid');        
             }        
         }
-        return redirect()->back()->with('errorTransaksi','jumlah pembayaran gak valid');        
+        return redirect()->back()->with('errorTransaksi','jumlah pembayaran tidak valid');        
 
     }
 
@@ -252,4 +262,3 @@ class TransactionController extends Controller
 
     
 }
-//© 2020 Copyright: Tahu Coding

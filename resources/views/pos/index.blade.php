@@ -5,18 +5,39 @@
         <div class="col-md-8">
             <div class="card" style="min-height:85vh">
                 <div class="card-header bg-white">
+                    {{-- <form action="coba" method="GET">
+                        <div class="col text-right" >
+                            <div class="col text-right">
+                                <select name="cat" id="categories" class="form-control from-control-sm" style="font-size: 12px">
+                                    @foreach($categories as $cat)
+                                        <option value="{{ $cat->nama }}">{{$cat->nama}}</option>
+                                    @endforeach
+                                </select>
+                                
+                            </div>
+                            <div class="col-sm-3">
+                                <button class="btn btn-danger btn-sm">GO</button>
+                                
+                            </div>
+                        </div>
+                    </form> --}}
+                    
                     <form action="{{ url('/transcation') }}" method="get">
                         <div class="row">
                             <div class="col">
                                 <h4 class="font-weight-bold">Products</h4>
                             </div>
                             <div class="col text-right">
-                                <select name="" id="" class="form-control from-control-sm" style="font-size: 12px">
-                                    <option value="" holder>Filter Category</option>
-                                    <option value="1">All Category...</option>
-                                </select>
+                                <select name="cat" id="categories" class="form-control from-control-sm" style="font-size: 12px">
+                                    @foreach($categories as $cat)
+                                        <option value="{{ $cat->nama }}">{{$cat->nama}}</option>
+                                    @endforeach
+                                </select>                              
                             </div>
-                            <div class="col"><input type="text" name="search"
+                            <div class="col-sm-3">
+                                <button class="btn btn-danger btn-sm">GO</button>                              
+                            </div>         
+                            <div class="col"><input value="{{request('search')}}" type="text" name="search"
                                     class="form-control form-control-sm col-sm-12 float-right"
                                     placeholder="Search Product..." onblur="this.form.submit()"></div>
                             <div class="col-sm-3"><button type="submit"
@@ -25,9 +46,9 @@
                     </form>
                 </div>
                 <div class="card-body">
-                    <div class="row">
+                    <div class="row" style="margin-left: 0px; margin-right: 0px">
                         @foreach ($products as $product)
-                        <div style="width: 18%;border:1px solid rgb(243, 243, 243)" class="mb-4">
+                        <div style="border:3px solid rgb(228, 228, 228)" class="mb-3">
                             <div class="productCard">
                                 <div class="view overlay">
                                     <form action="{{url('/transcation/addproduct', $product->id)}}" method="POST">
@@ -48,6 +69,7 @@
                                 </div>
                                 <div class="card-body">
                                     <p class="card-text text-center font-weight-bold">{{ Str::words($product->name,4) }}</p>
+                                    <p class="card-text text-center"> Quantity : {{$product->qty}}</p>
                                     <p class="card-text text-center">Rp. {{ number_format($product->price,2,',','.') }}
                                     </p>
                                 </div>
@@ -129,17 +151,6 @@
                             <th width="40%" class="text-right">Rp.
                                 {{ number_format($data_total['sub_total'],2,',','.') }} </th>
                         </tr>
-                        {{-- <tr>
-                            <th>
-                                <form action="{{ url('/transcation') }}" method="get">
-                                    PPN 10%
-                                    <input type="checkbox" {{ $data_total['tax'] > 0 ? "checked" : ""}} name="tax"
-                                        value="true" onclick="this.form.submit()">
-                                </form>
-                            </th>
-                            <th class="text-right">Rp.
-                                {{ number_format($data_total['tax'],2,',','.') }}</th>
-                        </tr> --}}
                         <tr>
                             <th>Total</th>
                             <th class="text-right font-weight-bold">Rp.
@@ -160,8 +171,7 @@
                                 style="padding:1rem!important" href="{{url('/transcation/history')}}" target="_blank">History</a>
                         </div>
                         <div class="col-sm-4">
-                            <button class="btn btn-success btn-lg btn-block" style="padding:1rem!important"
-                                data-toggle="modal">Pay</button>
+                            <button class="btn btn-success btn-lg btn-block" style="padding:1rem!important" data-toggle="modal" data-target="#fullHeightModalRight">Pay</button>
                         </div>
                     </div>
                 </div>
@@ -174,11 +184,9 @@
 
         <!-- Add class .modal-full-height and then add class .modal-right (or other classes from list above) to set a position to the modal -->
         <div class="modal-dialog modal-full-height modal-right" role="document">
-
-        <!-- Sorry campur2 bahasa indonesia sama inggris krn kebiasaan make b.inggris eh ternyata buat aplikasi buat indonesia jadi gini deh  -->
             <div class="modal-content">
-                <div class="modal-header indigo">
-                    <h6 class="modal-title w-100 text-light" id="myModalLabel">Billing Information</h6>
+                <div class="modal-header red">
+                    <h6 class="modal-title w-100 text-light" id="myModalLabel">Transaksi Pembayaran</h6>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -190,13 +198,6 @@
                             <th width="40%" class="text-right">Rp.
                                 {{ number_format($data_total['sub_total'],2,',','.') }} </th>
                         </tr>
-                        @if($data_total['tax'] > 0)
-                        <tr>
-                            <th>PPN 10%</th>
-                            <th class="text-right">Rp.
-                                {{ number_format($data_total['tax'],2,',','.') }}</th>
-                        </tr>
-                        @endif
                     </table>
                     <form action="{{ url('/transcation/bayar') }}" method="POST">
                     @csrf
@@ -224,8 +225,6 @@
         </div>
     </div>
     @endsection
-    <!-- © 2020 Copyright: Tahu Coding -->
-    <!-- Ini error harusnya bisa dinamis ambil value dari controller tp agar cepet ya biar aja gini silahkan modifikasi  -->
     @push('script')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     @if(Session::has('error'))
@@ -249,7 +248,7 @@
     @if(Session::has('success'))
     <script>
         toastr.success(
-            'Transaksi berhasil | Thank Your from Tahu Coding'
+            'Transaksi berhasil Disimpan'
         )
 
     </script>

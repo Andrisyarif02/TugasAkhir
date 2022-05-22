@@ -31,6 +31,26 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/transcation/bayar','TransactionController@bayar');
     Route::get('/transcation/history','TransactionController@history');
     Route::get('/transcation/laporan/{id}','TransactionController@laporan');
+
+    Route::get('/categoris/{id}', 'TransactionController@filter');
+
+    Route::get('/category', 'CategoriesController@index');
+    Route::get('/category/index','CategoriesController@index');
+    Route::get('/category/create','CategoriesController@create');
+    Route::post('/category/tambah','CategoriesController@tambah');
+    Route::get('/category/{id}/edit','CategoriesController@edit');
+    Route::post('/category/{id}/update','CategoriesController@update');
+    Route::get('/category/{id}/delete','CategoriesController@delete');
+
+    Route::get('/user', 'UserController@index');
+    Route::get('/user/index', 'UserController@index');
+    Route::get('/user/create', 'UserController@create');
+    Route::get('/user/tambah', 'UserController@tambah');
+    Route::get('/user/{id}/edit', 'UserController@edit');
+    Route::get('/user/{id}/edit', 'UserController@update');
+    Route::get('/user/{id}/edit', 'UserController@delete');
+
+    Route::get('/coba','TransactionController@index');
 });
 
 

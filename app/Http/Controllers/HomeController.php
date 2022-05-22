@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 //© 2020 Copyright: Tahu Coding
 use Illuminate\Http\Request;
+use App\User;
 
 class HomeController extends Controller
 {
@@ -23,6 +24,10 @@ class HomeController extends Controller
      */
     public function index()
     {
+        // $roles = User::select('roles');
+        // echo "<pre>"; print_r($roles); die;
+        // session()->put('roles', $roles);
         return view('home');
     }
+
 }

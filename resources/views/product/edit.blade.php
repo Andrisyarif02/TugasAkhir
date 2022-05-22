@@ -77,9 +77,15 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="description">Description</label>
-                            <textarea name="description" cols="30" rows="10"
-                                class="form-control">{{ old('description', $product->description) }}</textarea>
+                            <label for="description">Kode category</label>
+                            <select name="description" class="custom-select my-1 mr-sm-2 bg-light" id="kode"
+                                value="{{$product->description}}" required>
+                                <option selected>{{$product->description}}</option>
+                                @foreach($data_category as $category)
+                                    <option value="{{$category->description}}">{{$category->nama}} ( {{$category->description}} )
+                                </option>
+                                @endforeach
+                            </select>
                             @include('layouts.error', ['name' => 'description'])
                         </div>
                         <div class="form-group">
