@@ -8,6 +8,7 @@ use App\HistoryProduct;
 use App\ProductTranscation;
 use App\Transcation;
 use Auth;
+use Carbon\Carbon;
 use DB;
 
 use Darryldecode\Cart\CartCondition;
@@ -283,5 +284,17 @@ class TransactionController extends Controller
         $data->save();
 
         return response()->json(['message' => 'Sukses!']);
+    }
+
+    public function filterDate(Request $request)
+    {
+        $start_date = Carbon::parse($request->start_date)->toDateTimeString();
+        $end_date = Carbon::parse($request->end_date)->toDateTimeString();
+        if ($end_date == Carbon::today()) {
+            $end_date = Carbon::now();
+        }
+        $history = Transcation::whereBetween('created_at', [$start_date, $end_date])->orderBy('created_at', 'desc')->paginate(10);
+
+        return view('pos.history', compact('history'));
     }
 }

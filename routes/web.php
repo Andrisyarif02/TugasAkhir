@@ -34,6 +34,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/transcation/laporan/{id}', 'TransactionController@laporan');
     Route::post('/transaction/ubah-status', 'TransactionController@ubahStatus');
     Route::post('/transaction/konfirmasi', 'TransactionController@konfirmasi');
+    Route::post('/transaction/filter-date', 'TransactionController@filterDate')->name('history-filter');
 
     Route::get('/categoris/{id}', 'TransactionController@filter');
 

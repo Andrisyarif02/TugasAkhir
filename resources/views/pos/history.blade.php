@@ -8,14 +8,27 @@
             <div class="col-md-8">
                 <div class="card" style="min-height: 85vh">
                     <div class="card-header bg-white">
-                        <form action="">
-                            <div class="row">
-                                <div class="col">
-                                    <h4 class="font-weight-bold">History Transcation</h4>
-                                </div>
-
+                        <div class="row">
+                            <div class="col">
+                                <h4 class="font-weight-bold">History Transcation</h4>
                             </div>
-                        </form>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <form method="POST" action="{{ route('history-filter') }}">
+                                    @csrf
+                                    <div class="input-group my-3">
+                                        <input type="date" class="form-control" name="start_date" placeholder="Start Date"
+                                            id="datepicker">
+                                        <input type="date" class="form-control" name="end_date" placeholder="End Date"
+                                            id="datepicker">
+                                        <div class="input-group-append">
+                                            <button class="input-group-text" type="submit">GET</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
                         <table class="table table-sm" id="history">
@@ -144,6 +157,11 @@
                         }
                     })
                 })
+                // $('#datepicker').datepicker({
+                //     'dateformat': 'yyyy-mm-dd',
+                //     changeYear: true
+                // })
+
             })
         </script>
     @endpush
