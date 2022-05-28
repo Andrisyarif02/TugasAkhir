@@ -42,7 +42,7 @@ class TransactionController extends Controller
         //     ->paginate(12);
         // }
 
-        $categories = \App\Category::all(); 
+        $categories = \App\Category::all();
 
         //cart item
         if (request()->tax) {
@@ -185,7 +185,7 @@ class TransactionController extends Controller
                 $id = IdGenerator::generate(['table' => 'transcations', 'length' => 10, 'prefix' => 'INV-', 'field' => 'invoices_number']);
 
                 $transaction = \App\Transcation::all();
-                
+
                 Transcation::create([
                     'invoices_number' => $id,
                     'user_id' => Auth::id(),
