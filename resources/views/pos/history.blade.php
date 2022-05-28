@@ -67,7 +67,7 @@
                                                 Gagal
                                             @elseif ($item->status == 1)
                                                 Diorder
-                                            @elseif ($item->status == 2)
+                                            @elseif ($item->status == 2 && $item->konfirmasi == 0)
                                                 Dikirim
                                             @elseif ($item->status == 2 && $item->konfirmasi == 1)
                                                 Diterima
@@ -94,7 +94,7 @@
                                             @elseif ($item->status == 2 && $item->konfirmasi == 1)
                                                 @can('karyawan')
                                                     <a class="btn btn-success btn-sm" id="btn-trans"
-                                                        data-id="{{ $item->id }}" tipe="3">Sukses</a>
+                                                        data-id="{{ $item->id }}" tipe="3">Berhasil</a>
                                                 @endcan
                                             @endif
                                         </td>
