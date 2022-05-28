@@ -92,11 +92,10 @@
                                                         <a class="btn btn-success btn-sm" id="btn-konfirmasi"
                                                             data-id="{{ $item->id }}">Diterima</a>
                                                     @endcan
+                                                @elseif ($item->status == 2 && $item->konfirmasi == 1)
                                                     @can('karyawan')
                                                         <a class="btn btn-success btn-sm" id="btn-trans"
                                                             data-id="{{ $item->id }}" tipe="3">Sukses</a>
-                                                        <a class="btn btn-danger btn-sm" id="btn-trans"
-                                                            data-id="{{ $item->id }}" tipe="0">Gagal</a>
                                                     @endcan
                                                 @endif
                                             </td>
