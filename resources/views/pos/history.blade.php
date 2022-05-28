@@ -87,7 +87,7 @@
                                                         <a class="btn btn-primary btn-sm" id="btn-trans"
                                                             data-id="{{ $item->id }}" tipe="2">Kirim</a>
                                                     @endcan
-                                                @elseif ($item->status == 2)
+                                                @elseif ($item->status == 2 && $item->konfirmasi == 0)
                                                     @can('karyawan')
                                                         <a class="btn btn-success btn-sm" id="btn-konfirmasi"
                                                             data-id="{{ $item->id }}">Diterima</a>
