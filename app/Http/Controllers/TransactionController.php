@@ -9,7 +9,6 @@ use App\Product;
 use App\HistoryProduct;
 use App\ProductTranscation;
 use App\Transcation;
-use Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use DB;
