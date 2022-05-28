@@ -21,6 +21,7 @@
     <!-- Material Design Bootstrap -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.18.0/css/mdb.min.css" rel="stylesheet">
 
+    <link rel="stylesheet" href="{{ asset('./css/bell_icon.css')}}">
 
     @stack('style')
     @stack('meta')
@@ -81,7 +82,11 @@
                         @endif
                         @else
 
-                        <li class="dropdown dropdown-notification">
+                        <li class="icon-wrapper" data-number="1">
+                            <img src="{{ asset('./img/bell_icon.png') }}" alt="" class="bell-icon">
+                            {{-- <span><i class="fas fa-bell bell-icon"></i></span> --}}
+                        </li>
+                        {{-- <li class="dropdown dropdown-notification">
                             <a href="" class="dropdown-link new-indicator" data-toggle="dropdown" >
                                 <i class="fa fa-bell cursor-pointer"></i>
                                 <span>2</span>
@@ -100,7 +105,7 @@
 
                                 <div class="dropdown-footer"><a href="">View all Notifications</a></div>
                               </div><!-- dropdown-menu -->
-                        </li>
+                        </li> --}}
                         <li class="nav-item dropdown">
                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -135,6 +140,7 @@
 
 
 </body>
+
 <!-- JQuery -->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <!-- Bootstrap tooltips -->
@@ -149,3 +155,4 @@
 @stack('script')
 
 </html>
+

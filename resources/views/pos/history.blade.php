@@ -5,7 +5,7 @@
     @endpush
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <div class="card" style="min-height: 85vh">
                     <div class="card-header bg-white">
                         <div class="row">
@@ -27,6 +27,12 @@
                                         </div>
                                     </div>
                                 </form>
+                        <form action="">
+                            <div class="row">
+                                <div class="col">
+                                    <h4 class="font-weight-bold">History Transcation</h4>
+                                </div>
+                        <div class="col"><a class="btn btn-primary float-right btn-sm" onclick="window.print()"><i class="fas fa-print"></i> Print</a>
                             </div>
                         </div>
                     </div>
@@ -36,9 +42,13 @@
                                 <th>No</th>
                                 <th>Nomor Invoices</th>
                                 <th>User</th>
+                                <th>Store</th>
                                 <th>Total</th>
                                 <th>Status</th>
                                 <th>Confirm</th>
+                                <th>Cust. Name</th>
+                                <th>Message</th>
+                                <th>Tanggal</th>
 
                                 @can('admin')
                                     <th>Aksi</th>
@@ -49,6 +59,7 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $item->invoices_number }}</td>
                                     <td>{{ $item->user->name }}</td>
+                                    <td>{{ $item->user->store}}</td>
 
                                     <td>{{ $item->total }}</td>
                                     <td>
@@ -70,7 +81,7 @@
                                             @endcan
                                         @elseif ($item->status == 1)
                                             @can('admin')
-                                                <a class="btn btn-success btn-sm" id="btn-trans" data-id="{{ $item->id }}"
+                                                <a class="btn btn-primary btn-sm" id="btn-trans" data-id="{{ $item->id }}"
                                                     tipe="2">Kirim</a>
                                             @endcan
                                         @elseif ($item->status == 2)
@@ -90,6 +101,9 @@
                                             @endcan
                                         @endif
                                     </td>
+                                    <td>{{$item->name}}</td>
+                                    <td> <a href="https://wa.me/62{{$item->number}}/?text=Pesanan atas nama {{$item->name}} telah selesai dibuat dan dapat diambil. Sekian terima kasih" target="_blank"><i class="fa fa-whatsapp" style="font-size:24px;color: green;"></i> </a></td>
+                                    <td>{{ $item->created_at->format('d, M Y')}}</td>
                                     @can('admin')
                                         <td><a href="{{ url('/transcation/laporan', $item->invoices_number) }}"
                                                 class="btn btn-primary btn-sm"><i class="fas fa-print"></i></a></td>
@@ -104,6 +118,7 @@
         </div>
 
     </div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     @push('script')
         <script>
             let csrf_token = $('meta[name="csrf-token"]').attr('content');

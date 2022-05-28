@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+
+
 use Illuminate\Http\Request;
 use App\Product;
 use App\HistoryProduct;
@@ -9,6 +11,7 @@ use App\ProductTranscation;
 use App\Transcation;
 use Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use DB;
 
 use Darryldecode\Cart\CartCondition;
@@ -40,7 +43,7 @@ class TransactionController extends Controller
         //     ->paginate(12);
         // }
 
-        $categories = \App\Category::all();
+        $categories = \App\Category::all(); 
 
         //cart item
         if (request()->tax) {
@@ -143,6 +146,8 @@ class TransactionController extends Controller
 
         $cart_total = \Cart::session(Auth()->id())->getTotal();
         $bayar = request()->bayar;
+        $name = request()->name;
+        $number = request()->number;
         $kembalian = (int)$bayar - (int)$cart_total;
 
         if ($kembalian >= 0) {
@@ -180,11 +185,16 @@ class TransactionController extends Controller
 
                 $id = IdGenerator::generate(['table' => 'transcations', 'length' => 10, 'prefix' => 'INV-', 'field' => 'invoices_number']);
 
+                $transaction = \App\Transcation::all();
+                
                 Transcation::create([
                     'invoices_number' => $id,
                     'user_id' => Auth::id(),
+                    'store' => Auth::user()->store,
                     'pay' => request()->bayar,
-                    'total' => $cart_total
+                    'total' => $cart_total,
+                    'name' => $name,
+                    'number' => $number,
                 ]);
 
                 foreach ($filterCart as $cart) {
