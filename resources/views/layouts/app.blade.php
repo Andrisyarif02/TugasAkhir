@@ -50,7 +50,11 @@
                         <a class="nav-link font-weight-bolder" href="{{url('/category')}}">Category</a>
                         @endcan
                     </li>
-
+                    <li class="nav-item {{Route::is('/user') ? 'active' : ''}}">
+                        @can('admin')
+                        <a class="nav-link font-weight-bolder" href="{{url('/user')}}">User</a>
+                        @endcan
+                    </li>
                 </ul>
                 <button class="navbar-toggler" type="button" data-toggle="collapse"
                     data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
