@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+{{-- @include('pos.filterJS' ) --}}
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -29,19 +30,20 @@
                             </div>
                             <div class="col text-right">
                                 <select name="cat" id="categories" class="form-control from-control-sm" style="font-size: 12px">
+                                    <option value="">All</option>
                                     @foreach($categories as $cat)
                                         <option value="{{ $cat->nama }}">{{$cat->nama}}</option>
                                     @endforeach
                                 </select>                              
                             </div>
-                            <div class="col-sm-3">
-                                <button class="btn btn-danger btn-sm">GO</button>                              
-                            </div>         
+                            <div class="col-sm-2">
+                                <button class="btn btn-danger btn-sm float-right btn-block">Find</button>                              
+                            </div>       
                             <div class="col"><input value="{{request('search')}}" type="text" name="search"
                                     class="form-control form-control-sm col-sm-12 float-right"
                                     placeholder="Search Product..." onblur="this.form.submit()"></div>
                             <div class="col-sm-3"><button type="submit"
-                                    class="btn btn-danger btn-sm float-right btn-block">Cari Product</button></div>
+                                    class="btn btn-danger btn-sm float-right btn-block">Search</button></div>
                         </div>
                     </form>
                 </div>
@@ -49,7 +51,7 @@
                     <div class="row" style="margin-left: 0px; margin-right: 0px">
                         @foreach ($products as $product)
                         <div style="border:3px solid rgb(228, 228, 228)" class="mb-3">
-                            <div class="productCard">
+                            <div class="productCard" id="productCard">
                                 <div class="view overlay">
                                     <form action="{{url('/transcation/addproduct', $product->id)}}" method="POST">
                                         @csrf

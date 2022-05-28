@@ -25,22 +25,22 @@ class TransactionController extends Controller
 
         //product
 
-        $products = Product::when(request('search'), function ($query) {
-            return $query->where('name', 'like', '%' . request('search') . '%');
-        })
-            ->orderBy('created_at', 'desc')
-            ->paginate(12);
-
-        // $products=Product::paginate(12);
-        // if($request->cat){
-        // $products = Product::where('description',$request->cat)
-        // ->orderBy('created_at','desc')
-        // ->paginate(12);
-        // }elseif($request->search){
-        //     $products = Product::where('name','like','%'.$request->search.'%')
-        //     ->orderBy('created_at','desc')
+        // $products = Product::when(request('search'), function ($query) {
+        //     return $query->where('name', 'like', '%' . request('search') . '%');
+        // })
+        //     ->orderBy('created_at', 'desc')
         //     ->paginate(12);
-        // }
+
+        $products=Product::paginate(12);
+        if($request->cat){
+        $products = Product::where('description',$request->cat)
+        ->orderBy('created_at','desc')
+        ->paginate(12);
+        }elseif($request->search){
+            $products = Product::where('name','like','%'.$request->search.'%')
+            ->orderBy('created_at','desc')
+            ->paginate(12);
+        }
 
         $categories = \App\Category::all();
 

@@ -8,6 +8,17 @@
                     <form action="{{ route('products.index') }}" method="get">
                         <div class="row">  
                             <div class="col"><h4 class="font-weight-bold">Products</h4></div>
+                            <div class="col text-right">
+                                <select name="cat" id="categories" class="form-control from-control-sm" style="font-size: 12px">
+                                    <option value="">All</option>
+                                    @foreach($categories as $cat)
+                                        <option value="{{ $cat->nama }}">{{$cat->nama}}</option>
+                                    @endforeach
+                                </select>                              
+                            </div>
+                            <div class="col-sm-2">
+                                <button class="btn btn-danger btn-sm float-right btn-block">Find</button>                              
+                            </div> 
                             <div class="col"><input type="text" name="search"
                                     class="form-control form-control-sm col-sm-10 float-right"
                                     placeholder="Search Product..." onblur="this.form.submit()"></div>
