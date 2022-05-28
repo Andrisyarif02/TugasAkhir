@@ -202,18 +202,26 @@
                     <form action="{{ url('/transcation/bayar') }}" method="POST">
                     @csrf
                     <div class="form-group">
+                        <label for="name">Nama Customer</label>
+                        <input id="name" class="form-control" type="text" name="name" autofocus />
+                    </div>
+                    <div class="form-group">
+                        <label for="number">Nomor Hp</label>
+                        <input id="number" class="form-control" type="number" name="number" autofocus />
+                    </div>
+                    <div class="form-group">
                         <label for="oke">Input Nominal</label>
                         <input id="oke" class="form-control" type="number" name="bayar" autofocus />
                     </div>
-                    <h3 class="font-weight-bold">Total:</h3>
-                    <h1 class="font-weight-bold mb-5">Rp. {{ number_format($data_total['total'],2,',','.') }}</h1>
+                    <h5 class="font-weight-bold">Total:</h5>
+                    <h3 class="font-weight-bold mb-3">Rp. {{ number_format($data_total['total'],2,',','.') }}</h3>
                     <input id="totalHidden" type="hidden" name="totalHidden" value="{{$data_total['total']}}" />
 
-                    <h3 class="font-weight-bold">Bayar:</h3>
-                    <h1 class="font-weight-bold mb-5" id="pembayaran"></h1>
+                    <h5 class="font-weight-bold">Bayar:</h5>
+                    <h3 class="font-weight-bold mb-3" id="pembayaran"></h3>
 
-                    <h3 class="font-weight-bold text-primary">Kembalian:</h3>
-                    <h1 class="font-weight-bold text-primary" id="kembalian"></h1>
+                    <h5 class="font-weight-bold text-primary">Kembalian:</h5>
+                    <h3 class="font-weight-bold text-primary" id="kembalian"></h3>
                 </div>
                 
                 <div class="modal-footer justify-content-center">

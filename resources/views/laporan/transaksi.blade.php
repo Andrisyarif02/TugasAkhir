@@ -27,14 +27,19 @@
                                     <td width="60%">{{$transaksi->user->name}}</td>
                                 </tr>
                                 <tr>
-                                    <td width="38%">Create At</td>
+                                    <td width="38%">Store</td>
                                     <td width="2%">:</td>
-                                    <td width="60%">{{$transaksi->created_at}}</td>
+                                    <td width="60%">{{$transaksi->user->store}}</td>
                                 </tr>
                             </table>
                         </div>
                         <div class="col-sm-6">
                             <table width="100%" class="table table-borderless">
+                                <tr>
+                                    <td width="38%">Create At</td>
+                                    <td width="2%">:</td>
+                                    <td width="60%">{{$transaksi->created_at}}</td>
+                                </tr>
                                 <tr>
                                     <td width="38%">Pay</td>
                                     <td width="2%">:</td>
