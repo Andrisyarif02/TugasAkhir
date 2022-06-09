@@ -5,14 +5,17 @@ namespace App\Http\Controllers;
 
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use App\Product;
 use App\HistoryProduct;
 use App\ProductTranscation;
 use App\Transcation;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use DB;
-
+use PDF;
 use Darryldecode\Cart\CartCondition;
 
 use Haruncpi\LaravelIdGenerator\IdGenerator;
@@ -30,71 +33,93 @@ class TransactionController extends Controller
         // })
         //     ->orderBy('created_at', 'desc')
         //     ->paginate(12);
-
-        $products=Product::paginate(12);
-        if($request->cat){
-        $products = Product::where('description',$request->cat)
-        ->orderBy('created_at','desc')
-        ->paginate(12);
-        }elseif($request->search){
-            $products = Product::where('name','like','%'.$request->search.'%')
-            ->orderBy('created_at','desc')
-            ->paginate(12);
-        }
-
-        $categories = \App\Category::all();
-
-        //cart item
-        if (request()->tax) {
-            $tax = "+10%";
+        if ($request->cat || $request->search) {
+            if ($request->cat != "all" && $request->search) {
+                $products = Product::where('description', $request->cat)->where('name', 'like', '%' . $request->search . '%')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            } else if ($request->cat == "all" && $request->search) {
+                $products = Product::where('name', 'like', '%' . $request->search . '%')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            } else if (!$request->search) {
+                if ($request->cat == "all") {
+                    $products = Product::orderBy('created_at', 'desc')
+                        ->get();
+                } else {
+                    $products = Product::where('description', $request->cat)
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                }
+            }
+            $data[] = [];
+            if ($products) {
+                foreach ($products as $key => $value) {
+                    $data[$key] = [
+                        "img" => $value->image,
+                        "name" => Str::words($value->name, 6),
+                        "price" => number_format($value->price, 2, ',', '.'),
+                        "qty" => $value->qty,
+                        "id" => $value->id,
+                        "url_detail" => route('products.edit', $value->id)
+                    ];
+                }
+            }
+            return response()->json($data);
         } else {
-            $tax = "0%";
-        }
+            $products = Product::get();
+            $categories = \App\Category::all();
 
-        $condition = new \Darryldecode\Cart\CartCondition(array(
-            'name' => 'pajak',
-            'type' => 'tax', //tipenya apa
-            'target' => 'total', //target kondisi ini apply ke mana (total, subtotal)
-            'value' => $tax, //contoh -12% or -10 or +10 etc
-            'order' => 1
-        ));
-
-        \Cart::session(Auth()->id())->condition($condition);
-
-        $items = \Cart::session(Auth()->id())->getContent();
-
-        if (\Cart::isEmpty()) {
-            $cart_data = [];
-        } else {
-            foreach ($items as $row) {
-                $cart[] = [
-                    'rowId' => $row->id,
-                    'name' => $row->name,
-                    'qty' => $row->quantity,
-                    'pricesingle' => $row->price,
-                    'price' => $row->getPriceSum(),
-                    'created_at' => $row->attributes['created_at'],
-                ];
+            //cart item
+            if (request()->tax) {
+                $tax = "+10%";
+            } else {
+                $tax = "0%";
             }
 
-            $cart_data = collect($cart)->sortBy('created_at');
+            $condition = new \Darryldecode\Cart\CartCondition(array(
+                'name' => 'pajak',
+                'type' => 'tax', //tipenya apa
+                'target' => 'total', //target kondisi ini apply ke mana (total, subtotal)
+                'value' => $tax, //contoh -12% or -10 or +10 etc
+                'order' => 1
+            ));
+
+            \Cart::session(Auth()->id())->condition($condition);
+
+            $items = \Cart::session(Auth()->id())->getContent();
+
+            if (\Cart::isEmpty()) {
+                $cart_data = [];
+            } else {
+                foreach ($items as $row) {
+                    $cart[] = [
+                        'rowId' => $row->id,
+                        'name' => $row->name,
+                        'qty' => $row->quantity,
+                        'pricesingle' => $row->price,
+                        'price' => $row->getPriceSum(),
+                        'created_at' => $row->attributes['created_at'],
+                    ];
+                }
+
+                $cart_data = collect($cart)->sortBy('created_at');
+            }
+
+            //total
+            $sub_total = \Cart::session(Auth()->id())->getSubTotal();
+            $total = \Cart::session(Auth()->id())->getTotal();
+
+            $new_condition = \Cart::session(Auth()->id())->getCondition('pajak');
+            $pajak = $new_condition->getCalculatedValue($sub_total);
+
+            $data_total = [
+                'sub_total' => $sub_total,
+                'total' => $total,
+                'tax' => $pajak
+            ];
+            return view('pos.index', compact('products', 'cart_data', 'data_total', 'categories'));
         }
-
-        //total
-        $sub_total = \Cart::session(Auth()->id())->getSubTotal();
-        $total = \Cart::session(Auth()->id())->getTotal();
-
-        $new_condition = \Cart::session(Auth()->id())->getCondition('pajak');
-        $pajak = $new_condition->getCalculatedValue($sub_total);
-
-        $data_total = [
-            'sub_total' => $sub_total,
-            'total' => $total,
-            'tax' => $pajak
-        ];
-
-
-        return view('pos.index', compact('products', 'cart_data', 'data_total', 'categories'));
     }
 
     public function filter($id)
@@ -140,10 +165,9 @@ class TransactionController extends Controller
         return redirect()->back();
     }
 
-    public function bayar()
+    public function bayar(Request $request)
     {
-
-        $cart_total = \Cart::session(Auth()->id())->getTotal();
+        $cart_total = request()->totalHidden;
         $bayar = request()->bayar;
         $name = request()->name;
         $number = request()->number;
@@ -208,7 +232,10 @@ class TransactionController extends Controller
                 \Cart::session(Auth()->id())->clear();
 
                 DB::commit();
-                return redirect()->back()->with('success', 'Transaksi Berhasil dilakukan, Klik History untuk print');
+                return redirect()->back()->with([
+                    "success" => 'Transaksi Berhasil dilakukan, Klik History untuk print',
+                    "inv" => $id
+                ]);
             } catch (\Exeception $e) {
                 DB::rollback();
                 return redirect()->back()->with('errorTransaksi', 'jumlah pembayaran tidak valid');
@@ -267,7 +294,11 @@ class TransactionController extends Controller
 
     public function history()
     {
-        $history = Transcation::orderBy('created_at', 'desc')->paginate(10);
+        if (Auth::user()->roles == 'Karyawan')
+            $history = Transcation::where('store', Auth::user()->store)->orderBy('created_at', 'desc')->get();
+        else
+            $history = Transcation::orderBy('created_at', 'desc')->get();
+
         return view('pos.history', compact('history'));
     }
 
@@ -297,13 +328,94 @@ class TransactionController extends Controller
 
     public function filterDate(Request $request)
     {
-        $start_date = Carbon::parse($request->start_date)->toDateTimeString();
-        $end_date = Carbon::parse($request->end_date)->toDateTimeString();
-        if ($end_date == Carbon::today()) {
-            $end_date = Carbon::now();
+        if ($request->start1) {
+            $start_date = Carbon::parse($request->start1)->toDateTimeString();
+            $end_date = Carbon::parse($request->end1)->toDateTimeString();
+            if ($end_date == Carbon::today()) {
+                $end_date = Carbon::now();
+            }
+            if ($request->toko && $request->toko != "all") {
+                $history = Transcation::join('users', 'users.id', '=', 'user_id')->where('transcations.store', $request->toko)->whereBetween('transcations.created_at', [$start_date, $end_date])->orderBy('transcations.created_at', 'desc')->select('transcations.*', 'users.name as un')->get();
+            } else {
+                $history = Transcation::join('users', 'users.id', '=', 'user_id')->whereBetween('transcations.created_at', [$start_date, $end_date])->orderBy('transcations.created_at', 'desc')->select('transcations.*', 'users.name as un')->get();
+            }
+        } else {
+            if ($request->toko == "all") {
+                $history = Transcation::join('users', 'users.id', '=', 'user_id')->orderBy('transcations.created_at', 'desc')->select('transcations.*', 'users.name as un')->get();
+            } else {
+                $history = Transcation::join('users', 'users.id', '=', 'user_id')->where('transcations.store', $request->toko)->orderBy('transcations.created_at', 'desc')->select('transcations.*', 'users.name as un')->get();
+            }
         }
-        $history = Transcation::whereBetween('created_at', [$start_date, $end_date])->orderBy('created_at', 'desc')->paginate(10);
+        $tanggal[] = [];
+        $total = 0;
+        if ($history) {
+            $total = number_format($history->sum('total'));
+            foreach ($history as $key => $value) {
+                $tanggal[$key] = $value->created_at->format('d, M Y');
+            }
+        }
 
-        return view('pos.history', compact('history'));
+        // return view('pos.history', compact('history'));
+        return response()->json(['data' => $history, 'role' => Auth::user()->roles, 'tanggal' => $tanggal, 'total' => $total]);
+    }
+
+    public function filterStore(Request $request) //ini sekarang ga dipake
+    {
+        $history = Transcation::where('store', $request->toko)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('pos.history', compact("history"));
+    }
+    public function nota($id)
+    {
+        $transaction = Transcation::join('users', 'user_id', '=', 'users.id')->where('invoices_number', $id)->select('transcations.*', 'users.name as nk', 'users.email')->first();
+        $products = ProductTranscation::join('products', 'product_transation.product_id', '=', 'products.id')->where('invoices_number', $id)->select('product_transation.*', 'products.name', 'products.price')->get();
+        $pdf = app('dompdf.wrapper')->loadView('pos.nota', [
+            'trx' => $transaction,
+            'prd' => $products
+        ]);
+        return $pdf->stream('invoice.pdf');
+    }
+
+    public function sendEmail($id)
+    {
+        $count = User::select('email')->where('roles', 'Administrator')->count();
+        $email = User::select('email')->where('roles', 'Administrator')->get();
+        // echo "<pre>($email)</pre>";die;
+        // $email = 'andrisyarif02@gmail.com';
+        $transaction = Transcation::join('users', 'user_id', '=', 'users.id')->where('invoices_number', $id)->select('transcations.*', 'users.name as nk', 'users.email')->first();
+        $products = ProductTranscation::join('products', 'product_transation.product_id', '=', 'products.id')->where('invoices_number', $id)->select('product_transation.*', 'products.name', 'products.price')->get();
+        $data = array(
+            'trx' => $transaction,
+            'prd' => $products
+        );
+        $recipient = explode(',', $email);
+        // echo print_r($recipient);die;
+        $to = [];
+        foreach ($email as $key => $value) {
+            $to[$key] = $value->email;
+            // echo print_r($to);die;
+
+            // $to = ["andrisyarif02@gmail.com", "fadhylaa194@gmail.com", "ellafitrikusumaningrum@gmail.com", "syaddad46c@gmail.com"];       
+        }
+        Mail::send('pos.email_template', $data, function ($message) use ($to) {
+            $message->to($to, 'no-reply')
+                ->subject("Invoice");
+            $message->from('optikindonesia12@gmail.com', 'Optik Indonesia');
+        });
+        if (Mail::failures()) {
+            return "Gagall";
+        }
+        return redirect()->back();
+    }
+
+    public function createPDF(Request $request)
+    {
+        $history = Transcation::where('store', $request->toko)
+        ->orderBy('created_at', 'desc');
+
+        $pdf = \PDF::loadview('pos.history_pdf', ['history' => $history]);
+        return $pdf->stream('hisitory-report-pdf');
     }
 }

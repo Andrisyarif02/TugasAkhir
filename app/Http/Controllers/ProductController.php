@@ -8,6 +8,7 @@ use App\HistoryProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Gate;
@@ -16,22 +17,64 @@ use Illuminate\Support\Facades\Gate;
 class ProductController extends Controller
 {
 
+    // public function index(Request $request)
+    // {
+    //     $products=Product::paginate(8);
+    //     if ($request->cat) {
+    //         $products = Product::where('description', $request->cat)
+    //             ->orderBy('created_at', 'desc')
+    //             ->paginate(8);
+    //     } else if ($request->search) {
+    //         $products = Product::when(request('search'), function ($query) {
+    //             return $query->where('name', 'like', '%' . request('search') . '%');
+    //         })
+    //             ->orderBy('created_at', 'desc')
+    //             ->paginate(8);
+    //     }
+    //     $categories = \App\Category::all();
+    //     return view('product.index', compact('products', 'categories'));
+    // }
     public function index(Request $request)
     {
-        $products=Product::paginate(8);
-        if ($request->cat) {
-            $products = Product::where('description', $request->cat)
-                ->orderBy('created_at', 'desc')
-                ->paginate(8);
-        } else if ($request->search) {
-            $products = Product::when(request('search'), function ($query) {
-                return $query->where('name', 'like', '%' . request('search') . '%');
-            })
-                ->orderBy('created_at', 'desc')
-                ->paginate(8);
+
+        if ($request->cat || $request->search) {
+            if ($request->cat != "all" && $request->search) {
+                $products = Product::where('description', $request->cat)->where('name', 'like', '%' . $request->search . '%')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            } else if ($request->cat == "all" && $request->search) {
+                $products = Product::where('name', 'like', '%' . $request->search . '%')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            } else if (!$request->search) {
+                if ($request->cat == "all") {
+                    $products = Product::orderBy('created_at', 'desc')
+                        ->get();
+                } else {
+                    $products = Product::where('description', $request->cat)
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                }
+            }
+            $data[] = [];
+            if ($products) {
+                foreach ($products as $key => $value) {
+                    $data[$key] = [
+                        "img" => $value->image,
+                        "name" => Str::words($value->name, 6),
+                        "price" => number_format($value->price, 2, ',', '.'),
+                        "qty" => $value->qty,
+                        "id" => $value->id,
+                        "url_detail" => route('products.edit', $value->id)
+                    ];
+                }
+            }
+            return response()->json($data);
+        } else {
+            $products = Product::get();
+            $categories = \App\Category::all();
+            return view('product.index', compact('products', 'categories'));
         }
-        $categories = \App\Category::all();
-        return view('product.index', compact('products', 'categories'));
     }
 
     public function create()
@@ -80,6 +123,7 @@ class ProductController extends Controller
                         'qty' => $qty,
                         'image' => 'uploads/images/' . $new_gambar,
                         'description' => $request->description,
+                        
                     ];
                 } else {
                     $product = [
@@ -87,6 +131,7 @@ class ProductController extends Controller
                         'price' => $request->price,
                         'qty' => $qty,
                         'description' => $request->description,
+                        
                     ];
                 }
                 $product_id->update($product);
@@ -111,6 +156,7 @@ class ProductController extends Controller
                     'qty' => 'required',
                     'image' => 'mimes:jpeg,jpg,png,gif|required',
                     'description' => 'required',
+                    
                 ]);
 
                 $gambar = $request->image;
